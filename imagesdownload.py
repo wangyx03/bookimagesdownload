@@ -11,8 +11,8 @@ from datetime import datetime
 
 # ========== 读取 .env ==========
 load_dotenv()
-CF_CLEARANCE = os.getenv("CF_CLEARANCE")
-SITE = os.getenv("SITE", "bookoutlet").lower()
+SITE = os.getenv("SITE", "bookdepot").lower()
+CF_CLEARANCE = os.getenv("CF_CLEARANCE") if SITE == "bookdepot" else None
 
 # ========== 配置 ==========
 SITE_CONFIG = {
@@ -23,8 +23,8 @@ SITE_CONFIG = {
     },
     "bookdepot": {
         "referer": "https://images.bookdepot.com/",
-        "csv_file": r"D:\book images\bookimages_depot.csv",
-        "save_dir": r"D:\book images\covers_depot",
+        "csv_file": r"D:\book images\bookimages.csv",
+        "save_dir": r"D:\book images\covers",
     },
 }
 
@@ -39,7 +39,8 @@ save_dir.mkdir(parents=True, exist_ok=True)
 log_file = save_dir / f"download_log_{datetime.now().strftime('%Y%m%d_%H%M%S')}.txt"
 
 headers = {
-    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36",
+    #注意同步版本号#
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36",
     "Referer": config["referer"],
     "Accept": "image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8",
 }
