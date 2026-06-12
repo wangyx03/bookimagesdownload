@@ -36,7 +36,7 @@ csv_file_path = config["csv_file"]
 save_dir = Path(config["save_dir"])
 save_dir.mkdir(parents=True, exist_ok=True)
 
-log_file = save_dir / f"download_log_{datetime.now().strftime('%Y%m%d_%H%M%S')}.txt"
+log_file = Path(r"D:\book images") / f"download_log_{datetime.now().strftime('%Y%m%d_%H%M%S')}.txt"
 
 headers = {
     #注意同步版本号#
