@@ -14,17 +14,20 @@ load_dotenv()
 SITE = os.getenv("SITE", "bookdepot").lower()
 CF_CLEARANCE = os.getenv("CF_CLEARANCE") if SITE == "bookdepot" else None
 
+csv_file_path = os.getenv("CSV_FILE")
+save_dir = Path(os.getenv("SAVE_DIR"))
+log_dir = Path(os.getenv("LOG_DIR"))
+
+if not csv_file_path or not os.getenv("SAVE_DIR") or not os.getenv("LOG_DIR"):
+    raise ValueError("CSV_FILE / SAVE_DIR / LOG_DIR 未配置，请检查 .env 文件")
+
 # ========== 配置 ==========
 SITE_CONFIG = {
     "bookoutlet": {
         "referer": "https://www.bookoutlet.com/",
-        "csv_file": r"D:\book images\bookimages.csv",
-        "save_dir": r"D:\book images\covers",
     },
     "bookdepot": {
         "referer": "https://images.bookdepot.com/",
-        "csv_file": r"D:\book images\bookimages.csv",
-        "save_dir": r"D:\book images\covers",
     },
 }
 
@@ -32,14 +35,11 @@ if SITE not in SITE_CONFIG:
     raise ValueError(f"SITE 配置错误，只支持: {list(SITE_CONFIG.keys())}")
 
 config = SITE_CONFIG[SITE]
-csv_file_path = config["csv_file"]
-save_dir = Path(config["save_dir"])
 save_dir.mkdir(parents=True, exist_ok=True)
-
-log_file = Path(r"D:\book images") / f"download_log_{datetime.now().strftime('%Y%m%d_%H%M%S')}.txt"
+log_dir.mkdir(parents=True, exist_ok=True)
+log_file = log_dir / f"download_log_{datetime.now().strftime('%Y%m%d_%H%M%S')}.txt"
 
 headers = {
-    #注意同步版本号#
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36",
     "Referer": config["referer"],
     "Accept": "image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8",
@@ -123,7 +123,7 @@ for url in urls:
             print(msg)
             log_lines.append(msg)
             stats["fail"] += 1
-            break
+            continue
 
         else:
             msg = f"[FAIL] {isbn} Status={r.status_code} Type={content_type}"
