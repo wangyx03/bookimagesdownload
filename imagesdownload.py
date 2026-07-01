@@ -13,6 +13,7 @@ from datetime import datetime
 load_dotenv()
 SITE = os.getenv("SITE", "bookdepot").lower()
 CF_CLEARANCE = os.getenv("CF_CLEARANCE") if SITE == "bookdepot" else None
+USER_AGENT = os.getenv("USER_AGENT")
 
 csv_file_path = os.getenv("CSV_FILE")
 save_dir = Path(os.getenv("SAVE_DIR"))
@@ -20,6 +21,9 @@ log_dir = Path(os.getenv("LOG_DIR"))
 
 if not csv_file_path or not os.getenv("SAVE_DIR") or not os.getenv("LOG_DIR"):
     raise ValueError("CSV_FILE / SAVE_DIR / LOG_DIR 未配置，请检查 .env 文件")
+
+if not USER_AGENT:                                    # ← 新增这两行
+    raise ValueError("USER_AGENT 未配置，请检查 .env 文件")
 
 # ========== 配置 ==========
 SITE_CONFIG = {
@@ -40,7 +44,7 @@ log_dir.mkdir(parents=True, exist_ok=True)
 log_file = log_dir / f"download_log_{datetime.now().strftime('%Y%m%d_%H%M%S')}.txt"
 
 headers = {
-    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36",
+    "User-Agent": USER_AGENT,  # 原来这里写死的 "Mozilla/5.0 ... Chrome/149.0.0.0 ..." 删掉
     "Referer": config["referer"],
     "Accept": "image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8",
 }
