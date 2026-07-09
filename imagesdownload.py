@@ -3,7 +3,7 @@ sys.stdout.reconfigure(encoding="utf-8")
 
 import csv
 import re
-import requests
+from curl_cffi import requests
 from pathlib import Path
 from dotenv import load_dotenv
 import os
@@ -22,7 +22,7 @@ log_dir = Path(os.getenv("LOG_DIR"))
 if not csv_file_path or not os.getenv("SAVE_DIR") or not os.getenv("LOG_DIR"):
     raise ValueError("CSV_FILE / SAVE_DIR / LOG_DIR 未配置，请检查 .env 文件")
 
-if not USER_AGENT:                                    # ← 新增这两行
+if not USER_AGENT:
     raise ValueError("USER_AGENT 未配置，请检查 .env 文件")
 
 # ========== 配置 ==========
@@ -44,7 +44,7 @@ log_dir.mkdir(parents=True, exist_ok=True)
 log_file = log_dir / f"download_log_{datetime.now().strftime('%Y%m%d_%H%M%S')}.txt"
 
 headers = {
-    "User-Agent": USER_AGENT,  # 原来这里写死的 "Mozilla/5.0 ... Chrome/149.0.0.0 ..." 删掉
+    "User-Agent": USER_AGENT,
     "Referer": config["referer"],
     "Accept": "image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8",
 }
@@ -111,7 +111,13 @@ for url in urls:
         continue
 
     try:
-        r = session.get(url, headers=headers, cookies=cookies, timeout=30)
+        r = session.get(
+            url,
+            headers=headers,
+            cookies=cookies,
+            timeout=30,
+            impersonate="chrome",
+        )
         content_type = r.headers.get("Content-Type", "")
 
         if r.status_code == 200 and "image" in content_type:
