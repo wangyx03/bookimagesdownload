@@ -224,19 +224,19 @@ js = f"""(async () => {{
 
 OUT_FILE.write_text(js, encoding="utf-8")
 
-# ===== ISBN + URL 清单（CSV 中所有有效且不重复的条目）=====
+# ===== 待下载清单：covers 文件夹里还没有的 ISBN + URL =====
 from datetime import datetime
 
-list_file = LOG_DIR / f"isbn_url_list_{datetime.now():%Y%m%d_%H%M%S}.csv"
+pending_items = [it for it in items if it["status"] == "PENDING"]
+list_file = LOG_DIR / f"pending_isbn_{datetime.now():%Y%m%d_%H%M%S}.csv"
 LOG_DIR.mkdir(parents=True, exist_ok=True)
 with open(list_file, "w", newline="", encoding="utf-8-sig") as f:
     w = csv.writer(f)
     w.writerow(["isbn", "url"])
-    for it in items:
-        if it["status"] in ("PENDING", "EXISTS"):
-            w.writerow([it["isbn"], it["url"]])
+    for it in pending_items:
+        w.writerow([it["isbn"], it["url"]])
 
-print(f"[OK] ISBN清单: {list_file}")
+print(f"[OK] 待下载清单: {list_file} （{len(pending_items)} 个）")
 print(
     f"[OK] 待下载: {counts['PENDING']} | 已存在: {counts['EXISTS']} | "
     f"跳过(域名/ISBN/重复): {counts['SKIPPED']}"
